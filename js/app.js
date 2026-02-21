@@ -2,7 +2,18 @@
    APP VERSION
 ========================= */
 
-const APP_VERSION = new Date().toLocaleString();
+let APP_VERSION = "0.0.0";
+
+fetch("version.json?t=" + Date.now())
+  .then(res => res.json())
+  .then(data => {
+    APP_VERSION = data.version;
+
+    const versionEl = document.getElementById("appVersion");
+    if (versionEl) {
+      versionEl.textContent = "v" + APP_VERSION;
+    }
+  });
 
 /* =========================
    GLOBALS
