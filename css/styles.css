@@ -1,16 +1,25 @@
 /* =========================
    GLOBAL
 ========================= */
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* teljes oldal ne scrollozzon */
+  font-family: Arial, sans-serif;
+  background: #141414;
+  color: white;
+}
+
+.app {
+  display: flex;
+  height: 100vh; /* teljes képernyő */
+}
 
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #141414;
   color: #fff;
-}
-
-.app {
-  display: flex;
 }
 
 /* =========================
@@ -20,10 +29,14 @@ body {
 .sidebar {
   width: 220px;
   background: #111;
-  padding: 25px 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* felső menü + alsó verzió */
   height: 100vh;
-  box-sizing: border-box;
-  border-right: 1px solid #1f1f1f;
+  position: fixed;
+  left: 0;
+  top: 0;
 }
 
 .logo {
@@ -44,15 +57,22 @@ body {
 .sidebar nav a:hover {
   color: #fff;
 }
+.sidebar-version {
+  font-size: 13px;
+  color: #777;
+  margin-top: 20px;
+}
 
 /* =========================
    MAIN
 ========================= */
 
 .main {
+  margin-left: 220px; /* sidebar szélesség */
   flex: 1;
   padding: 30px;
-  box-sizing: border-box;
+  height: 100vh;
+  overflow-y: auto; /* csak ez scrollozzon */
 }
 
 
