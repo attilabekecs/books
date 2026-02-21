@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "genre": "SciFi",
+    "year": 1965,
+    "added": "2026-02-15",
+    "format": "pdf",
+    "description": "Eposzi sci-fi az Arrakis bolygón.",
+    "cover": "https://covers.openlibrary.org/b/id/8108696-L.jpg",
+    "file": "books/dune.pdf"
+  },
+  {
+    "id": "2",
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "year": 1937,
+    "added": "2026-02-16",
+    "format": "epub",
+    "description": "Bilbó kalandja a törpökkel.",
+    "cover": "https://covers.openlibrary.org/b/id/6979861-L.jpg",
+    "file": "books/hobbit.epub"
+  }
+]
