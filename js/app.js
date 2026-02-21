@@ -1,3 +1,5 @@
+const APP_VERSION = new Date().toISOString();
+
 let books = [];
 let currentView = "home";
 
