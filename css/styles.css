@@ -1,57 +1,95 @@
+/* Alapok */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background-color: #141414; /* sötét Plex háttér */
+  color: #fff;
   margin: 0;
   padding: 0;
 }
 
 header {
-  background-color: #003366;
-  color: white;
-  padding: 20px;
+  background-color: #0e0e0e;
+  padding: 20px 40px;
   text-align: center;
+  border-bottom: 1px solid #333;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #ff9900; /* Plex narancs kiemelés */
 }
 
 footer {
-  background-color: #003366;
-  color: white;
+  background-color: #0e0e0e;
   padding: 10px;
   text-align: center;
-  margin-top: 20px;
+  color: #aaa;
 }
 
+/* Könyvek kártya konténer */
 .books-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   padding: 20px;
+  gap: 20px;
 }
 
+/* Egy könyv kártya */
 .book-card {
-  background: white;
+  background-color: #1e1e1e; /* sötét kártya */
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  margin: 10px;
-  padding: 15px;
-  width: 220px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  overflow: hidden;
+  width: 180px;
+  transition: transform 0.3s, box-shadow 0.3s;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
 }
 
+/* Hover effekt */
+.book-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+}
+
+/* Kártya belső */
 .book-card h3 {
-  margin: 0 0 5px 0;
+  margin: 10px;
   font-size: 16px;
+  color: #ff9900;
 }
 
 .book-card p {
-  margin: 3px 0;
-  font-size: 14px;
+  margin: 5px 10px;
+  font-size: 13px;
+  color: #ccc;
 }
 
+/* Megnyitás / letöltés gomb */
 .book-card a {
-  margin-top: auto;
+  margin: 10px;
+  padding: 6px 8px;
+  background-color: #ff9900;
+  color: #141414;
   text-decoration: none;
-  color: green;
   font-weight: bold;
+  text-align: center;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.book-card a:hover {
+  background-color: #e68a00;
+}
+
+/* Reszponzív kisebb képernyőn */
+@media (max-width: 600px) {
+  .book-card {
+    width: 140px;
+  }
+  header h1 {
+    font-size: 22px;
+  }
 }
