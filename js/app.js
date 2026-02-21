@@ -106,10 +106,23 @@ function renderView() {
 function renderHome() {
 
   const main = document.getElementById("mainContent");
+
+  if (!books.length) {
+    main.innerHTML = "<p>Betöltés...</p>";
+    return;
+  }
+
   const random = books[Math.floor(Math.random() * books.length)];
 
   const desc = (random.description || "").trim();
   const shortDesc = desc.length > 320 ? desc.substring(0, 320) + "..." : desc;
+
+  // 📐 Hány könyv fér ki egy sorba?
+  const containerWidth = main.clientWidth;
+  const cardWidth = 220 + 20; // 220px kártya + 20px gap
+  const itemsPerRow = Math.floor(containerWidth / cardWidth);
+
+  const oneRowBooks = books.slice(0, itemsPerRow);
 
   main.innerHTML = `
     <section class="home-hero">
@@ -135,8 +148,8 @@ function renderHome() {
       </div>
     </section>
 
-    <section class="grid">
-      ${renderBookGrid(books)}
+    <section class="grid home-row">
+      ${renderBookGrid(oneRowBooks)}
     </section>
   `;
 }
@@ -391,3 +404,9 @@ function renderBookGrid(list) {
     </div>
   `).join("");
 }
+
+window.addEventListener("resize", () => {
+  if (currentView === "home") {
+    renderHome();
+  }
+});
