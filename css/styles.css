@@ -142,6 +142,11 @@ html, body {
   background: #f2b321;
 }
 
+.home-row {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
 
 /* =========================
    FILTERS
