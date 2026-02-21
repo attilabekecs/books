@@ -11,7 +11,7 @@ const APP_VERSION = new Date().toLocaleString();
 let books = [];
 let currentView = "home";
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwy9b7X4yY5SmgBG_uwHam9Y76UkbvuLZF502Xx23-XUidljNCVv7kC8lN_uSIyvUqWaQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwb9uy5qfZFrVCcx6rdBZnxj2rVpVbJs31aVtWRNyLhUSJo5wkNER2E3WqBE_k4gA1afg/exec";
 const CACHE_KEY = "bookplex_cache";
 
 /* =========================
