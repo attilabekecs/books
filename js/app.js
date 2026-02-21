@@ -27,15 +27,17 @@ function loadBooks() {
         year: book.year || "",
         genre: book.genre || "",
         description: book.description || "",
-        favorite: book.favorite || false
+        favorite: book.favorite || false,
+        format: book.format || ""
       }));
 
-      if (JSON.stringify(newBooks) !== JSON.stringify(books)) {
-        books = newBooks;
-        localStorage.setItem(CACHE_KEY, JSON.stringify(books));
-        renderView();
-      }
+      books = newBooks;
+      localStorage.setItem(CACHE_KEY, JSON.stringify(books));
+      renderView();
 
+    })
+    .catch(err => {
+      console.error("Hiba betöltéskor:", err);
     });
 }
 
@@ -202,43 +204,7 @@ function renderBookDetailById(id) {
 }
 
 /* =========================
-   READER
-========================= */
-
-function openBookById(id) {
-  const book = books.find(b => b.id === id);
-  if (!book) return;
-
-  const reader = document.getElementById("reader");
-
-  if (book.format === "pdf") {
-    reader.innerHTML = `<canvas id="pdfCanvas"></canvas>`;
-    const loadingTask = pdfjsLib.getDocument(book.file);
-    loadingTask.promise.then(pdf => {
-      pdf.getPage(1).then(page => {
-        const canvas = document.getElementById("pdfCanvas");
-        const context = canvas.getContext("2d");
-        const viewport = page.getViewport({ scale: 1.5 });
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        page.render({ canvasContext: context, viewport });
-      });
-    });
-  }
-
-  if (book.format === "epub") {
-    reader.innerHTML = `<div id="epubReader" style="height:600px;"></div>`;
-    const bookEpub = ePub(book.file);
-    const rendition = bookEpub.renderTo("epubReader", {
-      width: "100%",
-      height: "100%"
-    });
-    rendition.display();
-  }
-}
-
-/* =========================
-   EDIT + SAVE
+   SAVE
 ========================= */
 
 function saveBooksToDrive() {
@@ -248,63 +214,16 @@ function saveBooksToDrive() {
     headers: { "Content-Type": "application/json" }
   })
   .then(res => res.json())
-  .then(() => {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(books));
-    alert("Mentve Drive-ba ✔");
+  .then(data => {
+    if (data.status === "ok") {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(books));
+      alert("Mentve Drive-ba ✔");
+    } else {
+      alert("Hiba mentéskor!");
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Hálózati hiba mentéskor!");
   });
-}
-
-function enableEditMode(id) {
-  const book = books.find(b => b.id === id);
-  if (!book) return;
-
-  const main = document.getElementById("mainContent");
-
-  main.innerHTML = `
-    <section class="book-detail edit-mode">
-      <h2>Könyv szerkesztése</h2>
-      <div class="edit-form">
-        <label>Borító URL</label>
-        <input type="text" id="editCover" value="${book.cover}">
-        <label>Cím</label>
-        <input type="text" id="editTitle" value="${book.title}">
-        <label>Szerző</label>
-        <input type="text" id="editAuthor" value="${book.author}">
-        <label>Kiadási év</label>
-        <input type="text" id="editYear" value="${book.year}">
-        <label>Műfaj</label>
-        <input type="text" id="editGenre" value="${book.genre}">
-        <label>Leírás</label>
-        <textarea id="editDescription" rows="6">${book.description}</textarea>
-        <div class="edit-buttons">
-          <button onclick="saveEdit('${book.id}')">💾 Mentés</button>
-          <button onclick="renderBookDetailById('${book.id}')">❌ Mégse</button>
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-function saveEdit(id) {
-  const book = books.find(b => b.id === id);
-  if (!book) return;
-
-  book.title = document.getElementById("editTitle").value;
-  book.author = document.getElementById("editAuthor").value;
-  book.year = document.getElementById("editYear").value;
-  book.genre = document.getElementById("editGenre").value;
-  book.description = document.getElementById("editDescription").value;
-  book.cover = document.getElementById("editCover").value;
-
-  saveBooksToDrive();
-  renderBookDetailById(id);
-}
-
-function toggleFavorite(id) {
-  const book = books.find(b => b.id === id);
-  if (!book) return;
-
-  book.favorite = !book.favorite;
-  saveBooksToDrive();
-  renderBookDetailById(id);
 }
