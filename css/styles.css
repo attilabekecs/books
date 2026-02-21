@@ -109,7 +109,6 @@ body {
   display: flex;
   gap: 40px;
   padding: 40px;
-  background: linear-gradient(to right, #000 30%, #141414 100%);
 }
 
 .detail-left {
