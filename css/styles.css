@@ -143,10 +143,12 @@ html, body {
 }
 
 .home-row {
-  flex-wrap: nowrap;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 220px;
+  gap: 20px;
   overflow: hidden;
 }
-
 
 /* =========================
    FILTERS
