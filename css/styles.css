@@ -144,10 +144,8 @@ html, body {
 
 .home-row {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 220px;
+  grid-template-columns: repeat(5, 1fr);
   gap: 20px;
-  overflow: hidden;
 }
 
 /* =========================
@@ -180,7 +178,7 @@ html, body {
 }
 
 .book-card {
-  width: 220px;
+  width: 100%;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
