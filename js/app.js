@@ -1,7 +1,7 @@
 let books = [];
 let currentView = "home";
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzHsXhT2WXbNFB5UY5kX2CaP5SKXq4j0m35HdJl5j2078V2aYc7YmQ9e_NFseZNJodCAg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwy9b7X4yY5SmgBG_uwHam9Y76UkbvuLZF502Xx23-XUidljNCVv7kC8lN_uSIyvUqWaQ/exec";
 const CACHE_KEY = "bookplex_cache";
 
 /* =========================
