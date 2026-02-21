@@ -118,11 +118,7 @@ function renderHome() {
   const shortDesc = desc.length > 320 ? desc.substring(0, 320) + "..." : desc;
 
   // 📐 Hány könyv fér ki egy sorba?
-  const containerWidth = main.clientWidth;
-  const cardWidth = 220 + 20; // 220px kártya + 20px gap
-  const itemsPerRow = Math.floor(containerWidth / cardWidth);
-
-  const oneRowBooks = books.slice(0, itemsPerRow);
+ const oneRowBooks = books;
 
   main.innerHTML = `
     <section class="home-hero">
