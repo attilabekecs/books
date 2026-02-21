@@ -25,6 +25,7 @@ body {
   color: #aaa;
   text-decoration: none;
   padding: 10px 0;
+  cursor: pointer;
 }
 
 .sidebar nav a.active,
@@ -37,26 +38,34 @@ body {
   padding: 20px;
 }
 
+/* HERO */
+
 .hero {
-  height: 300px;
-  background: linear-gradient(to right, #000 40%, transparent),
-              url('https://via.placeholder.com/1200x400') center/cover;
+  height: 320px;
   display: flex;
   align-items: center;
   padding: 40px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .hero-content {
   max-width: 500px;
+  background: linear-gradient(to right, #000 60%, transparent);
+  padding: 20px;
 }
 
 .hero button {
   background: #e5a00d;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 20px;
   cursor: pointer;
+  font-weight: bold;
 }
+
+/* FILTERS */
 
 .filters {
   margin-bottom: 20px;
@@ -68,10 +77,12 @@ body {
   margin-right: 10px;
 }
 
+/* GRID */
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 160px);
-  gap: 15px;
+  gap: 20px;
 }
 
 .book-card {
@@ -88,25 +99,61 @@ body {
   border-radius: 6px;
 }
 
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.9);
-  justify-content: center;
-  align-items: center;
+.book-card p {
+  margin-top: 5px;
 }
 
-.modal-content {
-  background: #222;
-  padding: 20px;
-  width: 80%;
-  max-height: 90vh;
-  overflow-y: auto;
+/* DETAIL PAGE */
+
+.book-detail {
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+  background: linear-gradient(to right, #000 30%, #141414 100%);
 }
 
-.close {
-  float: right;
-  font-size: 24px;
+.detail-left {
+  width: 300px;
+}
+
+.detail-poster {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.detail-right {
+  flex: 1;
+}
+
+.detail-right h1 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.author {
+  color: #aaa;
+  font-size: 18px;
+}
+
+.meta {
+  margin: 10px 0;
+  color: #e5a00d;
+}
+
+.description {
+  max-width: 600px;
+  margin: 20px 0;
+}
+
+.actions button {
+  background: #e5a00d;
+  border: none;
+  padding: 12px 20px;
+  margin-right: 10px;
   cursor: pointer;
+  font-weight: bold;
+}
+
+#reader {
+  margin-top: 30px;
 }
