@@ -7,7 +7,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbz8ios9ELjhsbJLCBGN1XiB
    LOAD BOOKS FROM DRIVE
 ========================= */
 
-fetch(API_URL)
+fetch(API_URL + "?t=" + Date.now())
   .then(res => res.json())
   .then(data => {
     books = data.map(book => ({
@@ -37,6 +37,7 @@ document.querySelectorAll(".sidebar a").forEach(link => {
 
 function renderView() {
   if (!books.length) return;
+
   if (currentView === "home") renderHome();
   if (currentView === "library") renderLibrary();
   if (currentView === "favorites") renderFavorites();
@@ -49,8 +50,7 @@ function renderView() {
 function renderHome() {
   const main = document.getElementById("mainContent");
 
-  const randomIndex = Math.floor(Math.random() * books.length);
-  const random = books[randomIndex];
+  const random = books[Math.floor(Math.random() * books.length)];
 
   main.innerHTML = `
     <section class="hero">
@@ -58,15 +58,15 @@ function renderHome() {
         <h2>${random.title}</h2>
         <p>${random.author}</p>
         <p>${random.description}</p>
-        <button onclick="renderBookDetailByIndex(${randomIndex})">
+        <button onclick="renderBookDetailById('${random.id}')">
           📖 Olvasás
         </button>
       </div>
     </section>
 
     <section class="grid">
-      ${books.map((book, index) => `
-        <div class="book-card" onclick="renderBookDetailByIndex(${index})">
+      ${books.map(book => `
+        <div class="book-card" onclick="renderBookDetailById('${book.id}')">
           <img src="${book.cover}">
           <p>${book.title}</p>
         </div>
@@ -113,14 +113,14 @@ function renderFiltered() {
     book.author.toLowerCase().includes(authorSearch)
   );
 
-  filtered.sort((a, b) => 
-    a[sortValue].localeCompare(b[sortValue])
+  filtered.sort((a, b) =>
+    (a[sortValue] || "").localeCompare(b[sortValue] || "")
   );
 
   const grid = document.getElementById("bookGrid");
 
-  grid.innerHTML = filtered.map((book, index) => `
-    <div class="book-card" onclick="renderBookDetailByIndex(${books.indexOf(book)})">
+  grid.innerHTML = filtered.map(book => `
+    <div class="book-card" onclick="renderBookDetailById('${book.id}')">
       <img src="${book.cover}">
       <p>${book.title}</p>
     </div>
@@ -139,7 +139,7 @@ function renderFavorites() {
     <h2>Kedvencek</h2>
     <section class="grid">
       ${favorites.map(book => `
-        <div class="book-card" onclick="renderBookDetailByIndex(${books.indexOf(book)})">
+        <div class="book-card" onclick="renderBookDetailById('${book.id}')">
           <img src="${book.cover}">
           <p>${book.title}</p>
         </div>
@@ -152,8 +152,10 @@ function renderFavorites() {
    DETAIL PAGE
 ========================= */
 
-function renderBookDetailByIndex(index) {
-  renderBookDetail(books[index]);
+function renderBookDetailById(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+  renderBookDetail(book);
 }
 
 function renderBookDetail(book) {
@@ -168,7 +170,10 @@ function renderBookDetail(book) {
       <div class="detail-right">
         <h1>${book.title}</h1>
         <p class="author">${book.author}</p>
-        <p class="meta">${book.year || ""} ${book.genre ? "• " + book.genre : ""}</p>
+        <p class="meta">
+          ${book.year || ""}
+          ${book.genre ? " • " + book.genre : ""}
+        </p>
         <p class="description">${book.description}</p>
 
         <div class="actions">
@@ -200,13 +205,16 @@ function openBookById(id) {
   if (book.format === "pdf") {
     reader.innerHTML = `<canvas id="pdfCanvas"></canvas>`;
     const loadingTask = pdfjsLib.getDocument(book.file);
+
     loadingTask.promise.then(pdf => {
       pdf.getPage(1).then(page => {
         const canvas = document.getElementById("pdfCanvas");
         const context = canvas.getContext("2d");
         const viewport = page.getViewport({ scale: 1.5 });
+
         canvas.height = viewport.height;
         canvas.width = viewport.width;
+
         page.render({ canvasContext: context, viewport });
       });
     });
@@ -215,10 +223,12 @@ function openBookById(id) {
   if (book.format === "epub") {
     reader.innerHTML = `<div id="epubReader" style="height:600px;"></div>`;
     const bookEpub = ePub(book.file);
+
     const rendition = bookEpub.renderTo("epubReader", {
       width: "100%",
       height: "100%"
     });
+
     rendition.display();
   }
 }
