@@ -1,95 +1,112 @@
-/* Alapok */
 body {
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  background-color: #141414; /* sötét Plex háttér */
-  color: #fff;
   margin: 0;
-  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #141414;
+  color: white;
 }
 
-header {
-  background-color: #0e0e0e;
-  padding: 20px 40px;
-  text-align: center;
-  border-bottom: 1px solid #333;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 28px;
-  color: #ff9900; /* Plex narancs kiemelés */
-}
-
-footer {
-  background-color: #0e0e0e;
-  padding: 10px;
-  text-align: center;
-  color: #aaa;
-}
-
-/* Könyvek kártya konténer */
-.books-container {
+.app {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+}
+
+.sidebar {
+  width: 220px;
+  background: #111;
   padding: 20px;
-  gap: 20px;
+  height: 100vh;
 }
 
-/* Egy könyv kártya */
-.book-card {
-  background-color: #1e1e1e; /* sötét kártya */
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  overflow: hidden;
-  width: 180px;
-  transition: transform 0.3s, box-shadow 0.3s;
+.logo {
+  color: #e5a00d;
+}
+
+.sidebar nav a {
+  display: block;
+  color: #aaa;
+  text-decoration: none;
+  padding: 10px 0;
+}
+
+.sidebar nav a.active,
+.sidebar nav a:hover {
+  color: #fff;
+}
+
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+.hero {
+  height: 300px;
+  background: linear-gradient(to right, #000 40%, transparent),
+              url('https://via.placeholder.com/1200x400') center/cover;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  margin-bottom: 20px;
 }
 
-/* Hover effekt */
+.hero-content {
+  max-width: 500px;
+}
+
+.hero button {
+  background: #e5a00d;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.filters {
+  margin-bottom: 20px;
+}
+
+.filters input,
+.filters select {
+  padding: 8px;
+  margin-right: 10px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 160px);
+  gap: 15px;
+}
+
+.book-card {
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
 .book-card:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.7);
 }
 
-/* Kártya belső */
-.book-card h3 {
-  margin: 10px;
-  font-size: 16px;
-  color: #ff9900;
+.book-card img {
+  width: 100%;
+  border-radius: 6px;
 }
 
-.book-card p {
-  margin: 5px 10px;
-  font-size: 13px;
-  color: #ccc;
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  justify-content: center;
+  align-items: center;
 }
 
-/* Megnyitás / letöltés gomb */
-.book-card a {
-  margin: 10px;
-  padding: 6px 8px;
-  background-color: #ff9900;
-  color: #141414;
-  text-decoration: none;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+.modal-content {
+  background: #222;
+  padding: 20px;
+  width: 80%;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.book-card a:hover {
-  background-color: #e68a00;
-}
-
-/* Reszponzív kisebb képernyőn */
-@media (max-width: 600px) {
-  .book-card {
-    width: 140px;
-  }
-  header h1 {
-    font-size: 22px;
-  }
+.close {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
 }
