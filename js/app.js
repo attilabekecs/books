@@ -1,7 +1,7 @@
 let books = [];
 let currentView = "home";
 
-const API_URL = "https://script.google.com/macros/s/AKfycbz8ios9ELjhsbJLCBGN1XiBt4K98kg-8PbqzmXAcF5mGUdEaXvlIsuaB7Q3-A7_71m5Gw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzHsXhT2WXbNFB5UY5kX2CaP5SKXq4j0m35HdJl5j2078V2aYc7YmQ9e_NFseZNJodCAg/exec";
 
 /* =========================
    LOAD BOOKS FROM DRIVE
@@ -181,6 +181,14 @@ function renderBookDetail(book) {
             📖 Olvasás
           </button>
 
+          <button onclick="enableEditMode('${book.id}')">
+            ✏️ Szerkesztés
+          </button>
+
+          <button onclick="toggleFavorite('${book.id}')">
+            ⭐ ${book.favorite ? "Eltávolítás" : "Kedvencekhez"}
+          </button>
+
           <a href="${book.file}" target="_blank">
             <button>⬇ Letöltés</button>
           </a>
@@ -232,8 +240,9 @@ function openBookById(id) {
     rendition.display();
   }
 }
+
 /* =========================
-   EDIT
+   EDIT + SAVE
 ========================= */
 
 function saveBooksToDrive() {
@@ -248,4 +257,54 @@ function saveBooksToDrive() {
   .then(() => {
     alert("Mentve Drive-ba ✔");
   });
+}
+
+function enableEditMode(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+
+  const main = document.getElementById("mainContent");
+
+  main.innerHTML = `
+    <section class="book-detail">
+      <div class="detail-left">
+        <img src="${book.cover}" class="detail-poster">
+        <input type="text" id="editCover" value="${book.cover}">
+      </div>
+
+      <div class="detail-right">
+        <input type="text" id="editTitle" value="${book.title}">
+        <input type="text" id="editAuthor" value="${book.author}">
+        <input type="text" id="editYear" value="${book.year}">
+        <input type="text" id="editGenre" value="${book.genre}">
+        <textarea id="editDescription">${book.description}</textarea>
+
+        <button onclick="saveEdit('${book.id}')">💾 Mentés</button>
+      </div>
+    </section>
+  `;
+}
+
+function saveEdit(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+
+  book.title = document.getElementById("editTitle").value;
+  book.author = document.getElementById("editAuthor").value;
+  book.year = document.getElementById("editYear").value;
+  book.genre = document.getElementById("editGenre").value;
+  book.description = document.getElementById("editDescription").value;
+  book.cover = document.getElementById("editCover").value;
+
+  saveBooksToDrive();
+  renderBookDetailById(id);
+}
+
+function toggleFavorite(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+
+  book.favorite = !book.favorite;
+  saveBooksToDrive();
+  renderBookDetailById(id);
 }
