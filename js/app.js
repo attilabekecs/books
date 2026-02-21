@@ -329,10 +329,13 @@ function toggleFavorite(id) {
 }
 
 function saveBooksToDrive() {
+
+  const formData = new URLSearchParams();
+  formData.append("data", JSON.stringify(books));
+
   fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify(books),
-    headers: { "Content-Type": "application/json" }
+    body: formData
   })
   .then(res => res.json())
   .then(data => {
