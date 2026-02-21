@@ -232,3 +232,20 @@ function openBookById(id) {
     rendition.display();
   }
 }
+/* =========================
+   EDIT
+========================= */
+
+function saveBooksToDrive() {
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(books),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+  .then(res => res.json())
+  .then(() => {
+    alert("Mentve Drive-ba ✔");
+  });
+}
