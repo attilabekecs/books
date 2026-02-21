@@ -1,10 +1,44 @@
-const APP_VERSION = new Date().toISOString();
+/* =========================
+   APP VERSION
+========================= */
+
+const APP_VERSION = new Date().toLocaleString();
+
+/* =========================
+   GLOBALS
+========================= */
 
 let books = [];
 let currentView = "home";
 
 const API_URL = "https://script.google.com/macros/s/AKfycbwy9b7X4yY5SmgBG_uwHam9Y76UkbvuLZF502Xx23-XUidljNCVv7kC8lN_uSIyvUqWaQ/exec";
 const CACHE_KEY = "bookplex_cache";
+
+/* =========================
+   INIT
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  // Verzió kiírás
+  const versionEl = document.getElementById("appVersion");
+  if (versionEl) {
+    versionEl.textContent = "Build: " + APP_VERSION;
+  }
+
+  // Sidebar navigation
+  document.querySelectorAll(".sidebar a").forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.querySelectorAll(".sidebar a").forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
+      currentView = link.dataset.view;
+      renderView();
+    });
+  });
+
+  loadBooks();
+});
 
 /* =========================
    LOAD BOOKS (CACHE FIRST)
@@ -43,24 +77,17 @@ function loadBooks() {
     });
 }
 
-loadBooks();
-
 /* =========================
-   SIDEBAR
+   RENDER VIEW
 ========================= */
 
-document.querySelectorAll(".sidebar a").forEach(link => {
-  link.addEventListener("click", (e) => {
-    e.preventDefault();
-    document.querySelectorAll(".sidebar a").forEach(l => l.classList.remove("active"));
-    link.classList.add("active");
-    currentView = link.dataset.view;
-    renderView();
-  });
-});
-
 function renderView() {
-  if (!books.length) return;
+  const main = document.getElementById("mainContent");
+
+  if (!books.length) {
+    main.innerHTML = "<p>Betöltés...</p>";
+    return;
+  }
 
   if (currentView === "home") renderHome();
   if (currentView === "library") renderLibrary();
@@ -206,8 +233,100 @@ function renderBookDetailById(id) {
 }
 
 /* =========================
-   SAVE
+   READER
 ========================= */
+
+function openBookById(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+
+  const reader = document.getElementById("reader");
+
+  if (book.format === "pdf") {
+    reader.innerHTML = `<canvas id="pdfCanvas"></canvas>`;
+    const loadingTask = pdfjsLib.getDocument(book.file);
+
+    loadingTask.promise.then(pdf => {
+      pdf.getPage(1).then(page => {
+        const canvas = document.getElementById("pdfCanvas");
+        const context = canvas.getContext("2d");
+        const viewport = page.getViewport({ scale: 1.5 });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        page.render({ canvasContext: context, viewport });
+      });
+    });
+  }
+
+  if (book.format === "epub") {
+    reader.innerHTML = `<div id="epubReader" style="height:600px;"></div>`;
+    const bookEpub = ePub(book.file);
+    const rendition = bookEpub.renderTo("epubReader", {
+      width: "100%",
+      height: "100%"
+    });
+    rendition.display();
+  }
+}
+
+/* =========================
+   EDIT + SAVE
+========================= */
+
+function enableEditMode(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+
+  const main = document.getElementById("mainContent");
+
+  main.innerHTML = `
+    <section class="book-detail edit-mode">
+      <h2>Könyv szerkesztése</h2>
+      <div class="edit-form">
+        <label>Borító URL</label>
+        <input type="text" id="editCover" value="${book.cover}">
+        <label>Cím</label>
+        <input type="text" id="editTitle" value="${book.title}">
+        <label>Szerző</label>
+        <input type="text" id="editAuthor" value="${book.author}">
+        <label>Kiadási év</label>
+        <input type="text" id="editYear" value="${book.year}">
+        <label>Műfaj</label>
+        <input type="text" id="editGenre" value="${book.genre}">
+        <label>Leírás</label>
+        <textarea id="editDescription" rows="6">${book.description}</textarea>
+        <div class="edit-buttons">
+          <button onclick="saveEdit('${book.id}')">💾 Mentés</button>
+          <button onclick="renderBookDetailById('${book.id}')">❌ Mégse</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function saveEdit(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+
+  book.title = document.getElementById("editTitle").value;
+  book.author = document.getElementById("editAuthor").value;
+  book.year = document.getElementById("editYear").value;
+  book.genre = document.getElementById("editGenre").value;
+  book.description = document.getElementById("editDescription").value;
+  book.cover = document.getElementById("editCover").value;
+
+  saveBooksToDrive();
+  renderBookDetailById(id);
+}
+
+function toggleFavorite(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+
+  book.favorite = !book.favorite;
+  saveBooksToDrive();
+  renderBookDetailById(id);
+}
 
 function saveBooksToDrive() {
   fetch(API_URL, {
