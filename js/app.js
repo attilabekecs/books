@@ -1,54 +1,72 @@
 let books = [];
 let currentView = "home";
 
-fetch("data/books.json")
+const API_URL = "https://script.google.com/macros/s/AKfycbwm2mAfjt8sGXOE289KvSTIJO2Owh9ezgvY1H64z2ffrUQsa0MH34Pk-hggHK4DlS46Vw/exec";
+
+/* =========================
+   LOAD BOOKS FROM DRIVE
+========================= */
+
+fetch(API_URL)
   .then(res => res.json())
   .then(data => {
-    books = data;
+    books = data.map(book => ({
+      ...book,
+      cover: book.cover || "https://via.placeholder.com/300x450?text=No+Cover",
+      year: book.year || "",
+      genre: book.genre || "",
+      description: book.description || "",
+      favorite: book.favorite || false
+    }));
     renderView();
   });
 
-/* SIDEBAR NAVIGATION */
+/* =========================
+   SIDEBAR NAVIGATION
+========================= */
 
 document.querySelectorAll(".sidebar a").forEach(link => {
   link.addEventListener("click", (e) => {
     e.preventDefault();
     document.querySelectorAll(".sidebar a").forEach(l => l.classList.remove("active"));
     link.classList.add("active");
-
     currentView = link.dataset.view;
     renderView();
   });
 });
 
 function renderView() {
+  if (!books.length) return;
   if (currentView === "home") renderHome();
   if (currentView === "library") renderLibrary();
   if (currentView === "favorites") renderFavorites();
 }
 
-/* HOME */
+/* =========================
+   HOME
+========================= */
 
 function renderHome() {
   const main = document.getElementById("mainContent");
 
-  const random = books[Math.floor(Math.random() * books.length)];
+  const randomIndex = Math.floor(Math.random() * books.length);
+  const random = books[randomIndex];
 
   main.innerHTML = `
-    <section class="hero" style="background-image: url('${random.cover}')">
+    <section class="hero">
       <div class="hero-content">
         <h2>${random.title}</h2>
         <p>${random.author}</p>
         <p>${random.description}</p>
-        <button onclick='renderBookDetail(${JSON.stringify(random)})'>
+        <button onclick="renderBookDetailByIndex(${randomIndex})">
           📖 Olvasás
         </button>
       </div>
     </section>
 
     <section class="grid">
-      ${books.map(book => `
-        <div class="book-card" onclick='renderBookDetail(${JSON.stringify(book)})'>
+      ${books.map((book, index) => `
+        <div class="book-card" onclick="renderBookDetailByIndex(${index})">
           <img src="${book.cover}">
           <p>${book.title}</p>
         </div>
@@ -57,7 +75,9 @@ function renderHome() {
   `;
 }
 
-/* LIBRARY */
+/* =========================
+   LIBRARY
+========================= */
 
 function renderLibrary() {
   const main = document.getElementById("mainContent");
@@ -70,8 +90,6 @@ function renderLibrary() {
       <select id="sortSelect">
         <option value="title">Cím (A-Z)</option>
         <option value="author">Író</option>
-        <option value="year">Kiadás éve</option>
-        <option value="added">Hozzáadva</option>
       </select>
     </section>
 
@@ -95,19 +113,23 @@ function renderFiltered() {
     book.author.toLowerCase().includes(authorSearch)
   );
 
-  filtered.sort((a, b) => a[sortValue] > b[sortValue] ? 1 : -1);
+  filtered.sort((a, b) => 
+    a[sortValue].localeCompare(b[sortValue])
+  );
 
   const grid = document.getElementById("bookGrid");
 
-  grid.innerHTML = filtered.map(book => `
-    <div class="book-card" onclick='renderBookDetail(${JSON.stringify(book)})'>
+  grid.innerHTML = filtered.map((book, index) => `
+    <div class="book-card" onclick="renderBookDetailByIndex(${books.indexOf(book)})">
       <img src="${book.cover}">
       <p>${book.title}</p>
     </div>
   `).join("");
 }
 
-/* FAVORITES */
+/* =========================
+   FAVORITES
+========================= */
 
 function renderFavorites() {
   const main = document.getElementById("mainContent");
@@ -117,7 +139,7 @@ function renderFavorites() {
     <h2>Kedvencek</h2>
     <section class="grid">
       ${favorites.map(book => `
-        <div class="book-card" onclick='renderBookDetail(${JSON.stringify(book)})'>
+        <div class="book-card" onclick="renderBookDetailByIndex(${books.indexOf(book)})">
           <img src="${book.cover}">
           <p>${book.title}</p>
         </div>
@@ -126,7 +148,13 @@ function renderFavorites() {
   `;
 }
 
-/* DETAIL PAGE */
+/* =========================
+   DETAIL PAGE
+========================= */
+
+function renderBookDetailByIndex(index) {
+  renderBookDetail(books[index]);
+}
 
 function renderBookDetail(book) {
   const main = document.getElementById("mainContent");
@@ -140,15 +168,15 @@ function renderBookDetail(book) {
       <div class="detail-right">
         <h1>${book.title}</h1>
         <p class="author">${book.author}</p>
-        <p class="meta">${book.year} • ${book.genre}</p>
+        <p class="meta">${book.year || ""} ${book.genre ? "• " + book.genre : ""}</p>
         <p class="description">${book.description}</p>
 
         <div class="actions">
-          <button onclick='openBook(${JSON.stringify(book)})'>
+          <button onclick="openBookById('${book.id}')">
             📖 Olvasás
           </button>
 
-          <a href="${book.file}" download>
+          <a href="${book.file}" target="_blank">
             <button>⬇ Letöltés</button>
           </a>
         </div>
@@ -159,9 +187,14 @@ function renderBookDetail(book) {
   `;
 }
 
-/* READER */
+/* =========================
+   READER
+========================= */
 
-function openBook(book) {
+function openBookById(id) {
+  const book = books.find(b => b.id === id);
+  if (!book) return;
+
   const reader = document.getElementById("reader");
 
   if (book.format === "pdf") {
