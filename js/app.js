@@ -6,6 +6,7 @@ let APP_VERSION = "0.0.0";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
+  // Verzió betöltés
   try {
     const res = await fetch("version.json?t=" + Date.now());
     const data = await res.json();
@@ -29,12 +30,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadBooks();
 });
 
+
 /* =========================
    GLOBALS
 ========================= */
 
 let books = [];
 let currentView = "home";
+
+const POSTER_SIZE = 180;
 
 const API_URL = "https://script.google.com/macros/s/AKfycbwb9uy5qfZFrVCcx6rdBZnxj2rVpVbJs31aVtWRNyLhUSJo5wkNER2E3WqBE_k4gA1afg/exec";
 const CACHE_KEY = "bookplex_cache";
@@ -57,7 +61,7 @@ function loadBooks() {
     .then(res => res.json())
     .then(data => {
 
-      const newBooks = data.map(book => ({
+      books = data.map(book => ({
         ...book,
         cover: book.cover || "https://via.placeholder.com/300x450?text=No+Cover",
         year: book.year || "",
@@ -67,21 +71,21 @@ function loadBooks() {
         format: book.format || ""
       }));
 
-      books = newBooks;
       localStorage.setItem(CACHE_KEY, JSON.stringify(books));
       renderView();
-
     })
     .catch(err => {
       console.error("Hiba betöltéskor:", err);
     });
 }
 
+
 /* =========================
    RENDER VIEW
 ========================= */
 
 function renderView() {
+
   const main = document.getElementById("mainContent");
 
   if (!books.length) {
@@ -94,24 +98,36 @@ function renderView() {
   if (currentView === "favorites") renderFavorites();
 }
 
+
 /* =========================
-   HOME
+   HOME (Modern Layout)
 ========================= */
-let POSTER_SIZE = parseInt(localStorage.getItem("poster_size")) || 200;
 
 function renderHome() {
+
   const main = document.getElementById("mainContent");
   const random = books[Math.floor(Math.random() * books.length)];
 
+  const desc = (random.description || "").trim();
+  const shortDesc = desc.length > 320 ? desc.substring(0, 320) + "..." : desc;
+
   main.innerHTML = `
-    <section class="hero-modern" style="background-image:url('${random.cover}')">
-      <div class="hero-overlay">
-        <div class="hero-content-modern">
-          <h2>${random.title}</h2>
-          <p class="hero-author">${random.author}</p>
-          <p class="hero-description">
-            ${(random.description || "").substring(0, 220)}...
-          </p>
+    <section class="home-hero">
+      <div class="home-hero-poster">
+        <img src="${random.cover}" alt="${random.title}">
+      </div>
+
+      <div class="home-hero-info">
+        <h2>${random.title}</h2>
+        <div class="home-hero-meta">${random.author}</div>
+        <div class="home-hero-sub">
+          ${random.year ? random.year : ""} 
+          ${random.genre ? (random.year ? " • " : "") + random.genre : ""}
+        </div>
+
+        <p class="home-hero-desc">${shortDesc}</p>
+
+        <div class="home-hero-actions">
           <button onclick="renderBookDetailById('${random.id}')">
             📖 Olvasás
           </button>
@@ -119,33 +135,32 @@ function renderHome() {
       </div>
     </section>
 
-    ${renderPosterSizeControl()}
-
     <section class="grid">
       ${renderBookGrid(books)}
     </section>
   `;
 }
 
+
 /* =========================
    LIBRARY
 ========================= */
 
 function renderLibrary() {
+
   const main = document.getElementById("mainContent");
 
-main.innerHTML = `
-  ${renderPosterSizeControl()}
-  <section class="filters">
-    <input type="text" id="searchTitle" placeholder="Keresés cím szerint...">
-    <input type="text" id="searchAuthor" placeholder="Keresés író szerint...">
-    <select id="sortSelect">
-      <option value="title">Cím (A-Z)</option>
-      <option value="author">Író</option>
-    </select>
-  </section>
-  <section class="grid" id="bookGrid"></section>
-`;
+  main.innerHTML = `
+    <section class="filters">
+      <input type="text" id="searchTitle" placeholder="Keresés cím szerint...">
+      <input type="text" id="searchAuthor" placeholder="Keresés író szerint...">
+      <select id="sortSelect">
+        <option value="title">Cím (A-Z)</option>
+        <option value="author">Író</option>
+      </select>
+    </section>
+    <section class="grid" id="bookGrid"></section>
+  `;
 
   document.getElementById("searchTitle").oninput = renderFiltered;
   document.getElementById("searchAuthor").oninput = renderFiltered;
@@ -154,7 +169,9 @@ main.innerHTML = `
   renderFiltered();
 }
 
+
 function renderFiltered() {
+
   const titleSearch = document.getElementById("searchTitle").value.toLowerCase();
   const authorSearch = document.getElementById("searchAuthor").value.toLowerCase();
   const sortValue = document.getElementById("sortSelect").value;
@@ -168,32 +185,34 @@ function renderFiltered() {
     (a[sortValue] || "").localeCompare(b[sortValue] || "")
   );
 
- const grid = document.getElementById("bookGrid");
-grid.innerHTML = renderBookGrid(filtered);
-   }
+  document.getElementById("bookGrid").innerHTML = renderBookGrid(filtered);
+}
+
 
 /* =========================
    FAVORITES
 ========================= */
 
 function renderFavorites() {
+
   const main = document.getElementById("mainContent");
   const favorites = books.filter(b => b.favorite);
 
   main.innerHTML = `
     <h2>Kedvencek</h2>
-    ${renderPosterSizeControl()}
     <section class="grid">
       ${renderBookGrid(favorites)}
     </section>
   `;
 }
 
+
 /* =========================
    DETAIL
 ========================= */
 
 function renderBookDetailById(id) {
+
   const book = books.find(b => b.id === id);
   if (!book) return;
 
@@ -207,7 +226,7 @@ function renderBookDetailById(id) {
       <div class="detail-right">
         <h1>${book.title}</h1>
         <p>${book.author}</p>
-        <p>${book.year || ""} ${book.genre ? "• " + book.genre : ""}</p>
+        <p>${book.year} ${book.genre ? "• " + book.genre : ""}</p>
         <p>${book.description}</p>
 
         <div class="actions">
@@ -227,17 +246,20 @@ function renderBookDetailById(id) {
   `;
 }
 
+
 /* =========================
    READER
 ========================= */
 
 function openBookById(id) {
+
   const book = books.find(b => b.id === id);
   if (!book) return;
 
   const reader = document.getElementById("reader");
 
   if (book.format === "pdf") {
+
     reader.innerHTML = `<canvas id="pdfCanvas"></canvas>`;
     const loadingTask = pdfjsLib.getDocument(book.file);
 
@@ -254,6 +276,7 @@ function openBookById(id) {
   }
 
   if (book.format === "epub") {
+
     reader.innerHTML = `<div id="epubReader" style="height:600px;"></div>`;
     const bookEpub = ePub(book.file);
     const rendition = bookEpub.renderTo("epubReader", {
@@ -264,11 +287,13 @@ function openBookById(id) {
   }
 }
 
+
 /* =========================
    EDIT + SAVE
 ========================= */
 
 function enableEditMode(id) {
+
   const book = books.find(b => b.id === id);
   if (!book) return;
 
@@ -299,7 +324,9 @@ function enableEditMode(id) {
   `;
 }
 
+
 function saveEdit(id) {
+
   const book = books.find(b => b.id === id);
   if (!book) return;
 
@@ -314,7 +341,9 @@ function saveEdit(id) {
   renderBookDetailById(id);
 }
 
+
 function toggleFavorite(id) {
+
   const book = books.find(b => b.id === id);
   if (!book) return;
 
@@ -322,6 +351,7 @@ function toggleFavorite(id) {
   saveBooksToDrive();
   renderBookDetailById(id);
 }
+
 
 function saveBooksToDrive() {
 
@@ -347,38 +377,17 @@ function saveBooksToDrive() {
   });
 }
 
+
 /* =========================
-   Grid render helper
+   GRID RENDER
 ========================= */
 
 function renderBookGrid(list) {
+
   return list.map(book => `
-    <div class="book-card" 
-         onclick="renderBookDetailById('${book.id}')"
-         style="width:${POSTER_SIZE}px">
-      <img src="${book.cover}" 
-           style="height:${POSTER_SIZE * 1.5}px">
+    <div class="book-card" onclick="renderBookDetailById('${book.id}')">
+      <img src="${book.cover}" alt="${book.title}">
       <p>${book.title}</p>
     </div>
   `).join("");
-}
-
-/* =========================
-  Slider control
-========================= */
-
-function renderPosterSizeControl() {
-  return `
-    <div class="poster-control">
-      <label>Poszter méret</label>
-      <input type="range" min="120" max="300" value="${POSTER_SIZE}"
-        oninput="updatePosterSize(this.value)">
-    </div>
-  `;
-}
-
-function updatePosterSize(value) {
-  POSTER_SIZE = parseInt(value);
-  localStorage.setItem("poster_size", POSTER_SIZE);
-  renderView();
 }
