@@ -108,28 +108,32 @@ function renderView() {
 /* =========================
    HOME
 ========================= */
+let POSTER_SIZE = 200;
 
 function renderHome() {
   const main = document.getElementById("mainContent");
   const random = books[Math.floor(Math.random() * books.length)];
 
   main.innerHTML = `
-    <section class="hero">
-      <div class="hero-content">
-        <h2>${random.title}</h2>
-        <p>${random.author}</p>
-        <p>${random.description}</p>
-        <button onclick="renderBookDetailById('${random.id}')">📖 Olvasás</button>
+    <section class="hero-modern" style="background-image:url('${random.cover}')">
+      <div class="hero-overlay">
+        <div class="hero-content-modern">
+          <h2>${random.title}</h2>
+          <p class="hero-author">${random.author}</p>
+          <p class="hero-description">
+            ${random.description.substring(0, 220)}...
+          </p>
+          <button onclick="renderBookDetailById('${random.id}')">
+            📖 Olvasás
+          </button>
+        </div>
       </div>
     </section>
 
+    ${renderPosterSizeControl()}
+
     <section class="grid">
-      ${books.map(book => `
-        <div class="book-card" onclick="renderBookDetailById('${book.id}')">
-          <img src="${book.cover}">
-          <p>${book.title}</p>
-        </div>
-      `).join("")}
+      ${renderBookGrid(books)}
     </section>
   `;
 }
@@ -361,4 +365,39 @@ function saveBooksToDrive() {
     console.error(err);
     alert("Hálózati hiba mentéskor!");
   });
+}
+
+/* =========================
+   Grid render helper
+========================= */
+
+function renderBookGrid(list) {
+  return list.map(book => `
+    <div class="book-card" 
+         onclick="renderBookDetailById('${book.id}')"
+         style="width:${POSTER_SIZE}px">
+      <img src="${book.cover}" 
+           style="height:${POSTER_SIZE * 1.5}px">
+      <p>${book.title}</p>
+    </div>
+  `).join("");
+}
+
+/* =========================
+  Slider control
+========================= */
+
+function renderPosterSizeControl() {
+  return `
+    <div class="poster-control">
+      <label>Poszter méret</label>
+      <input type="range" min="120" max="300" value="${POSTER_SIZE}"
+        oninput="updatePosterSize(this.value)">
+    </div>
+  `;
+}
+
+function updatePosterSize(value) {
+  POSTER_SIZE = parseInt(value);
+  renderView();
 }
