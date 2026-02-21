@@ -118,7 +118,7 @@ function renderHome() {
   const shortDesc = desc.length > 320 ? desc.substring(0, 320) + "..." : desc;
 
   // 📐 Hány könyv fér ki egy sorba?
- const oneRowBooks = books;
+ const oneRowBooks = books.slice(0, 5);
 
   main.innerHTML = `
     <section class="home-hero">
