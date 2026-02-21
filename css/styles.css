@@ -4,22 +4,15 @@
 html, body {
   height: 100%;
   margin: 0;
-  overflow: hidden; /* teljes oldal ne scrollozzon */
-  font-family: Arial, sans-serif;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #141414;
-  color: white;
+  color: #fff;
 }
 
 .app {
   display: flex;
   height: 100vh; /* teljes képernyő */
-}
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #141414;
-  color: #fff;
 }
 
 /* =========================
@@ -37,6 +30,7 @@ body {
   position: fixed;
   left: 0;
   top: 0;
+  box-sizing: border-box;
 }
 
 .logo {
