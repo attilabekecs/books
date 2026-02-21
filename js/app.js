@@ -40,7 +40,7 @@ let currentView = "home";
 
 const POSTER_SIZE = 180;
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzaNttQLOSIfmGTMQbVWY2woLEFw0a8wo-3QMixlnQCloAPMlPa1QjbYYIi1jiRFUZBNA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzhgxR3zWWv20xdMG6c_FPMs5XSoNOuW5UvmQQ4bLbdkoZQmraD2V3ldFsJyn3MOAbXKQ/exec";
 const CACHE_KEY = "bookplex_cache";
 
 
