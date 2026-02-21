@@ -2,27 +2,47 @@ let books = [];
 let currentView = "home";
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzHsXhT2WXbNFB5UY5kX2CaP5SKXq4j0m35HdJl5j2078V2aYc7YmQ9e_NFseZNJodCAg/exec";
+const CACHE_KEY = "bookplex_cache";
 
 /* =========================
-   LOAD BOOKS FROM DRIVE
+   LOAD BOOKS (CACHE FIRST)
 ========================= */
 
-fetch(API_URL + "?t=" + Date.now())
-  .then(res => res.json())
-  .then(data => {
-    books = data.map(book => ({
-      ...book,
-      cover: book.cover || "https://via.placeholder.com/300x450?text=No+Cover",
-      year: book.year || "",
-      genre: book.genre || "",
-      description: book.description || "",
-      favorite: book.favorite || false
-    }));
+function loadBooks() {
+
+  const cached = localStorage.getItem(CACHE_KEY);
+
+  if (cached) {
+    books = JSON.parse(cached);
     renderView();
-  });
+  }
+
+  fetch(API_URL + "?t=" + Date.now())
+    .then(res => res.json())
+    .then(data => {
+
+      const newBooks = data.map(book => ({
+        ...book,
+        cover: book.cover || "https://via.placeholder.com/300x450?text=No+Cover",
+        year: book.year || "",
+        genre: book.genre || "",
+        description: book.description || "",
+        favorite: book.favorite || false
+      }));
+
+      if (JSON.stringify(newBooks) !== JSON.stringify(books)) {
+        books = newBooks;
+        localStorage.setItem(CACHE_KEY, JSON.stringify(books));
+        renderView();
+      }
+
+    });
+}
+
+loadBooks();
 
 /* =========================
-   SIDEBAR NAVIGATION
+   SIDEBAR
 ========================= */
 
 document.querySelectorAll(".sidebar a").forEach(link => {
@@ -49,7 +69,6 @@ function renderView() {
 
 function renderHome() {
   const main = document.getElementById("mainContent");
-
   const random = books[Math.floor(Math.random() * books.length)];
 
   main.innerHTML = `
@@ -58,9 +77,7 @@ function renderHome() {
         <h2>${random.title}</h2>
         <p>${random.author}</p>
         <p>${random.description}</p>
-        <button onclick="renderBookDetailById('${random.id}')">
-          📖 Olvasás
-        </button>
+        <button onclick="renderBookDetailById('${random.id}')">📖 Olvasás</button>
       </div>
     </section>
 
@@ -86,13 +103,11 @@ function renderLibrary() {
     <section class="filters">
       <input type="text" id="searchTitle" placeholder="Keresés cím szerint...">
       <input type="text" id="searchAuthor" placeholder="Keresés író szerint...">
-
       <select id="sortSelect">
         <option value="title">Cím (A-Z)</option>
         <option value="author">Író</option>
       </select>
     </section>
-
     <section class="grid" id="bookGrid"></section>
   `;
 
@@ -149,16 +164,13 @@ function renderFavorites() {
 }
 
 /* =========================
-   DETAIL PAGE
+   DETAIL
 ========================= */
 
 function renderBookDetailById(id) {
   const book = books.find(b => b.id === id);
   if (!book) return;
-  renderBookDetail(book);
-}
 
-function renderBookDetail(book) {
   const main = document.getElementById("mainContent");
 
   main.innerHTML = `
@@ -166,29 +178,18 @@ function renderBookDetail(book) {
       <div class="detail-left">
         <img src="${book.cover}" class="detail-poster">
       </div>
-
       <div class="detail-right">
         <h1>${book.title}</h1>
-        <p class="author">${book.author}</p>
-        <p class="meta">
-          ${book.year || ""}
-          ${book.genre ? " • " + book.genre : ""}
-        </p>
-        <p class="description">${book.description}</p>
+        <p>${book.author}</p>
+        <p>${book.year || ""} ${book.genre ? "• " + book.genre : ""}</p>
+        <p>${book.description}</p>
 
         <div class="actions">
-          <button onclick="openBookById('${book.id}')">
-            📖 Olvasás
-          </button>
-
-          <button onclick="enableEditMode('${book.id}')">
-            ✏️ Szerkesztés
-          </button>
-
+          <button onclick="openBookById('${book.id}')">📖 Olvasás</button>
+          <button onclick="enableEditMode('${book.id}')">✏️ Szerkesztés</button>
           <button onclick="toggleFavorite('${book.id}')">
             ⭐ ${book.favorite ? "Eltávolítás" : "Kedvencekhez"}
           </button>
-
           <a href="${book.file}" target="_blank">
             <button>⬇ Letöltés</button>
           </a>
@@ -213,16 +214,13 @@ function openBookById(id) {
   if (book.format === "pdf") {
     reader.innerHTML = `<canvas id="pdfCanvas"></canvas>`;
     const loadingTask = pdfjsLib.getDocument(book.file);
-
     loadingTask.promise.then(pdf => {
       pdf.getPage(1).then(page => {
         const canvas = document.getElementById("pdfCanvas");
         const context = canvas.getContext("2d");
         const viewport = page.getViewport({ scale: 1.5 });
-
         canvas.height = viewport.height;
         canvas.width = viewport.width;
-
         page.render({ canvasContext: context, viewport });
       });
     });
@@ -231,12 +229,10 @@ function openBookById(id) {
   if (book.format === "epub") {
     reader.innerHTML = `<div id="epubReader" style="height:600px;"></div>`;
     const bookEpub = ePub(book.file);
-
     const rendition = bookEpub.renderTo("epubReader", {
       width: "100%",
       height: "100%"
     });
-
     rendition.display();
   }
 }
@@ -249,15 +245,15 @@ function saveBooksToDrive() {
   fetch(API_URL, {
     method: "POST",
     body: JSON.stringify(books),
-    headers: {
-      "Content-Type": "application/json"
-    }
+    headers: { "Content-Type": "application/json" }
   })
   .then(res => res.json())
   .then(() => {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(books));
     alert("Mentve Drive-ba ✔");
   });
 }
+
 function enableEditMode(id) {
   const book = books.find(b => b.id === id);
   if (!book) return;
@@ -266,34 +262,24 @@ function enableEditMode(id) {
 
   main.innerHTML = `
     <section class="book-detail edit-mode">
-
       <h2>Könyv szerkesztése</h2>
-
       <div class="edit-form">
-
         <label>Borító URL</label>
         <input type="text" id="editCover" value="${book.cover}">
-
         <label>Cím</label>
         <input type="text" id="editTitle" value="${book.title}">
-
         <label>Szerző</label>
         <input type="text" id="editAuthor" value="${book.author}">
-
         <label>Kiadási év</label>
         <input type="text" id="editYear" value="${book.year}">
-
         <label>Műfaj</label>
         <input type="text" id="editGenre" value="${book.genre}">
-
         <label>Leírás</label>
         <textarea id="editDescription" rows="6">${book.description}</textarea>
-
         <div class="edit-buttons">
           <button onclick="saveEdit('${book.id}')">💾 Mentés</button>
           <button onclick="renderBookDetailById('${book.id}')">❌ Mégse</button>
         </div>
-
       </div>
     </section>
   `;
