@@ -1,7 +1,7 @@
 let books = [];
 let currentView = "home";
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwm2mAfjt8sGXOE289KvSTIJO2Owh9ezgvY1H64z2ffrUQsa0MH34Pk-hggHK4DlS46Vw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz8ios9ELjhsbJLCBGN1XiBt4K98kg-8PbqzmXAcF5mGUdEaXvlIsuaB7Q3-A7_71m5Gw/exec";
 
 /* =========================
    LOAD BOOKS FROM DRIVE
