@@ -2,7 +2,9 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>Otthoni Könyvtár</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Otthoni Könyvtár | BookPlex</title>
+
   <link rel="stylesheet" href="css/styles.css">
 
   <!-- PDF.js -->
@@ -23,38 +25,22 @@
       <a href="#" data-view="library">Könyvtár</a>
       <a href="#" data-view="favorites">Kedvencek</a>
     </nav>
+
+    <!-- Verzió -->
+    <div class="version">
+      <span id="appVersion"></span>
+    </div>
   </aside>
 
   <!-- MAIN -->
   <main class="main" id="mainContent">
-
-    <!-- HOME VIEW -->
-    <div id="homeView">
-
-      <!-- FILTER BAR -->
-      <section class="filters">
-        <input type="text" id="searchTitle" placeholder="Keresés cím szerint...">
-        <input type="text" id="searchAuthor" placeholder="Keresés író szerint...">
-
-        <select id="sortSelect">
-          <option value="title">Cím (A-Z)</option>
-          <option value="author">Író</option>
-          <option value="year">Kiadás éve</option>
-          <option value="added">Hozzáadva</option>
-        </select>
-      </section>
-
-      <!-- BOOK GRID -->
-      <section class="grid" id="bookGrid"></section>
-
-    </div>
-
-    <!-- DETAIL VIEW (Plex-style könyv oldal) -->
-    <div id="detailView" style="display:none;"></div>
-
+    <!-- Minden nézet JS-ből generálódik -->
   </main>
+
 </div>
 
-<script src="js/app.js"></script>
+<!-- Cache-busting paraméterrel -->
+<script src="js/app.js?v=1"></script>
+
 </body>
 </html>
