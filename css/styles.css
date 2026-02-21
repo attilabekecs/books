@@ -195,3 +195,71 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
+
+/* HERO */
+.hero-modern {
+  height: 420px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.hero-overlay {
+  background: linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.3));
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 40px;
+}
+
+.hero-content-modern {
+  max-width: 500px;
+}
+
+.hero-content-modern h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.hero-author {
+  opacity: 0.7;
+  margin-bottom: 15px;
+}
+
+.hero-description {
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.85;
+  margin-bottom: 20px;
+}
+
+/* GRID */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.book-card {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.book-card:hover {
+  transform: scale(1.05);
+}
+
+.book-card img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* SLIDER */
+.poster-control {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
