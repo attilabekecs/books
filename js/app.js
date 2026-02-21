@@ -1,82 +1,165 @@
 let books = [];
-let currentBook = null;
+let currentView = "home";
 
 fetch("data/books.json")
   .then(res => res.json())
   .then(data => {
     books = data;
-    renderHero();
-    renderBooks();
+    renderView();
   });
 
-function renderHero() {
+/* SIDEBAR NAVIGATION */
+
+document.querySelectorAll(".sidebar a").forEach(link => {
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    document.querySelectorAll(".sidebar a").forEach(l => l.classList.remove("active"));
+    link.classList.add("active");
+
+    currentView = link.dataset.view;
+    renderView();
+  });
+});
+
+function renderView() {
+  if (currentView === "home") renderHome();
+  if (currentView === "library") renderLibrary();
+  if (currentView === "favorites") renderFavorites();
+}
+
+/* HOME */
+
+function renderHome() {
+  const main = document.getElementById("mainContent");
+
   const random = books[Math.floor(Math.random() * books.length)];
-  currentBook = random;
 
-  document.getElementById("hero-title").innerText = random.title;
-  document.getElementById("hero-author").innerText = random.author;
-  document.getElementById("hero-description").innerText = random.description;
+  main.innerHTML = `
+    <section class="hero" style="background-image: url('${random.cover}')">
+      <div class="hero-content">
+        <h2>${random.title}</h2>
+        <p>${random.author}</p>
+        <p>${random.description}</p>
+        <button onclick='renderBookDetail(${JSON.stringify(random)})'>
+          📖 Olvasás
+        </button>
+      </div>
+    </section>
 
-  document.getElementById("hero-read").onclick = () => openBook(random);
+    <section class="grid">
+      ${books.map(book => `
+        <div class="book-card" onclick='renderBookDetail(${JSON.stringify(book)})'>
+          <img src="${book.cover}">
+          <p>${book.title}</p>
+        </div>
+      `).join("")}
+    </section>
+  `;
 }
 
-function renderBooks() {
-  const grid = document.getElementById("bookGrid");
-  grid.innerHTML = "";
+/* LIBRARY */
 
-  let filtered = filterBooks();
+function renderLibrary() {
+  const main = document.getElementById("mainContent");
 
-  filtered.forEach(book => {
-    const div = document.createElement("div");
-    div.className = "book-card";
-    div.innerHTML = `
-      <img src="${book.cover}" alt="">
-      <p>${book.title}</p>
-    `;
-    div.onclick = () => openDetails(book);
-    grid.appendChild(div);
-  });
+  main.innerHTML = `
+    <section class="filters">
+      <input type="text" id="searchTitle" placeholder="Keresés cím szerint...">
+      <input type="text" id="searchAuthor" placeholder="Keresés író szerint...">
+
+      <select id="sortSelect">
+        <option value="title">Cím (A-Z)</option>
+        <option value="author">Író</option>
+        <option value="year">Kiadás éve</option>
+        <option value="added">Hozzáadva</option>
+      </select>
+    </section>
+
+    <section class="grid" id="bookGrid"></section>
+  `;
+
+  document.getElementById("searchTitle").oninput = renderFiltered;
+  document.getElementById("searchAuthor").oninput = renderFiltered;
+  document.getElementById("sortSelect").onchange = renderFiltered;
+
+  renderFiltered();
 }
 
-function filterBooks() {
+function renderFiltered() {
   const titleSearch = document.getElementById("searchTitle").value.toLowerCase();
   const authorSearch = document.getElementById("searchAuthor").value.toLowerCase();
   const sortValue = document.getElementById("sortSelect").value;
 
-  let result = books.filter(book =>
+  let filtered = books.filter(book =>
     book.title.toLowerCase().includes(titleSearch) &&
     book.author.toLowerCase().includes(authorSearch)
   );
 
-  result.sort((a, b) => a[sortValue] > b[sortValue] ? 1 : -1);
+  filtered.sort((a, b) => a[sortValue] > b[sortValue] ? 1 : -1);
 
-  return result;
+  const grid = document.getElementById("bookGrid");
+
+  grid.innerHTML = filtered.map(book => `
+    <div class="book-card" onclick='renderBookDetail(${JSON.stringify(book)})'>
+      <img src="${book.cover}">
+      <p>${book.title}</p>
+    </div>
+  `).join("");
 }
 
-document.getElementById("searchTitle").oninput = renderBooks;
-document.getElementById("searchAuthor").oninput = renderBooks;
-document.getElementById("sortSelect").onchange = renderBooks;
+/* FAVORITES */
 
-function openDetails(book) {
-  const modal = document.getElementById("modal");
-  const details = document.getElementById("modalDetails");
+function renderFavorites() {
+  const main = document.getElementById("mainContent");
+  const favorites = books.filter(b => b.favorite);
 
-  details.innerHTML = `
-    <h2>${book.title}</h2>
-    <p><b>Író:</b> ${book.author}</p>
-    <p><b>Kiadás:</b> ${book.year}</p>
-    <p>${book.description}</p>
-    <button onclick="openBook(${JSON.stringify(book).replace(/"/g, '&quot;')})">
-      📖 Olvasás
-    </button>
-    <a href="${book.file}" download>
-      <button>⬇ Letöltés</button>
-    </a>
-    <div id="reader" style="margin-top:20px;"></div>
+  main.innerHTML = `
+    <h2>Kedvencek</h2>
+    <section class="grid">
+      ${favorites.map(book => `
+        <div class="book-card" onclick='renderBookDetail(${JSON.stringify(book)})'>
+          <img src="${book.cover}">
+          <p>${book.title}</p>
+        </div>
+      `).join("")}
+    </section>
   `;
-
-  modal.style.display = "flex";
 }
+
+/* DETAIL PAGE */
+
+function renderBookDetail(book) {
+  const main = document.getElementById("mainContent");
+
+  main.innerHTML = `
+    <section class="book-detail">
+      <div class="detail-left">
+        <img src="${book.cover}" class="detail-poster">
+      </div>
+
+      <div class="detail-right">
+        <h1>${book.title}</h1>
+        <p class="author">${book.author}</p>
+        <p class="meta">${book.year} • ${book.genre}</p>
+        <p class="description">${book.description}</p>
+
+        <div class="actions">
+          <button onclick='openBook(${JSON.stringify(book)})'>
+            📖 Olvasás
+          </button>
+
+          <a href="${book.file}" download>
+            <button>⬇ Letöltés</button>
+          </a>
+        </div>
+
+        <div id="reader"></div>
+      </div>
+    </section>
+  `;
+}
+
+/* READER */
 
 function openBook(book) {
   const reader = document.getElementById("reader");
@@ -106,7 +189,3 @@ function openBook(book) {
     rendition.display();
   }
 }
-
-document.getElementById("closeModal").onclick = () => {
-  document.getElementById("modal").style.display = "none";
-};
