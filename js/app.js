@@ -258,7 +258,6 @@ function saveBooksToDrive() {
     alert("Mentve Drive-ba ✔");
   });
 }
-
 function enableEditMode(id) {
   const book = books.find(b => b.id === id);
   if (!book) return;
@@ -266,20 +265,35 @@ function enableEditMode(id) {
   const main = document.getElementById("mainContent");
 
   main.innerHTML = `
-    <section class="book-detail">
-      <div class="detail-left">
-        <img src="${book.cover}" class="detail-poster">
+    <section class="book-detail edit-mode">
+
+      <h2>Könyv szerkesztése</h2>
+
+      <div class="edit-form">
+
+        <label>Borító URL</label>
         <input type="text" id="editCover" value="${book.cover}">
-      </div>
 
-      <div class="detail-right">
+        <label>Cím</label>
         <input type="text" id="editTitle" value="${book.title}">
-        <input type="text" id="editAuthor" value="${book.author}">
-        <input type="text" id="editYear" value="${book.year}">
-        <input type="text" id="editGenre" value="${book.genre}">
-        <textarea id="editDescription">${book.description}</textarea>
 
-        <button onclick="saveEdit('${book.id}')">💾 Mentés</button>
+        <label>Szerző</label>
+        <input type="text" id="editAuthor" value="${book.author}">
+
+        <label>Kiadási év</label>
+        <input type="text" id="editYear" value="${book.year}">
+
+        <label>Műfaj</label>
+        <input type="text" id="editGenre" value="${book.genre}">
+
+        <label>Leírás</label>
+        <textarea id="editDescription" rows="6">${book.description}</textarea>
+
+        <div class="edit-buttons">
+          <button onclick="saveEdit('${book.id}')">💾 Mentés</button>
+          <button onclick="renderBookDetailById('${book.id}')">❌ Mégse</button>
+        </div>
+
       </div>
     </section>
   `;
