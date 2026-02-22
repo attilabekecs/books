@@ -1,7 +1,7 @@
 import { clamp, showToast } from "./utils.js";
 import { getBookProgress, setBookProgress } from "./storage.js";
 
-const DRIVE_API = "https://script.google.com/macros/s/AKfycbzT0SCEs9jzJFe8_X-FRASmV7i2CDmDqMqjZ8O0ipMH5MLltlnYL3-A1e4QtoB1ksYfIQ/exec";
+const DRIVE_API = "https://script.google.com/macros/s/AKfycbwSKjhB-MuL0qBW1nhcC0fGD2Vo4U68QfSY-q6k3tEEo4Niyk0FZt-IQLj0hxrCexOU1A/exec";
 
 /**
  * Könyv megnyitása (PDF / EPUB)
