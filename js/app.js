@@ -9,7 +9,9 @@ import { openReader } from "./readerService.js";
 
 const root = document.getElementById("mainContent");
 
-state.subscribe((s) => renderApp(s, root));
+state.subscribe((s) => {
+  renderApp(s, root);
+});
 
 init().catch(err => {
   console.error(err);
@@ -22,6 +24,7 @@ async function init(){
   setupSidebarNavigation();
 
   const cached = loadBooksFromCache();
+
   if (cached?.length){
     state.set({ books: cached, loading: false, error: null });
   } else {
@@ -43,16 +46,19 @@ async function init(){
   setupEvents();
 
   window.addEventListener("resize", () => {
-    if (state.view === "home") state.notify();
+    const current = state.get();
+    if (current.view === "home") state.notify();
   });
 }
 
 function initTheme(){
-  const saved = getTheme();
+  const saved = getTheme() || "dark";
   document.body.dataset.theme = saved;
 
   const btn = document.getElementById("themeToggle");
-  btn?.addEventListener("click", () => {
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
     const current = document.body.dataset.theme || "dark";
     const next = current === "dark" ? "light" : "dark";
     document.body.dataset.theme = next;
@@ -61,12 +67,16 @@ function initTheme(){
 }
 
 async function loadVersion(){
+  const el = document.getElementById("appVersion");
+  if (!el) return;
+
   try {
     const res = await fetch(VERSION_URL + "?t=" + Date.now());
+    if (!res.ok) throw new Error("Version fetch failed");
     const data = await res.json();
-    document.getElementById("appVersion").textContent = "v" + (data?.version || "0.0.0");
+    el.textContent = "v" + (data?.version || "0.0.0");
   } catch {
-    document.getElementById("appVersion").textContent = "v0.0.0";
+    el.textContent = "v0.0.0";
   }
 }
 
@@ -74,10 +84,14 @@ function setupSidebarNavigation(){
   document.querySelectorAll(".sidebar a[data-view]").forEach(link => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      document.querySelectorAll(".sidebar a[data-view]").forEach(l => l.classList.remove("active"));
+
+      document.querySelectorAll(".sidebar a[data-view]")
+        .forEach(l => l.classList.remove("active"));
+
       link.classList.add("active");
 
       const view = link.dataset.view;
+
       state.set({
         view,
         selectedId: null
@@ -95,6 +109,7 @@ function setupEvents(){
     if (t.id === "searchTitle"){
       state.set({ searchTitle: t.value });
     }
+
     if (t.id === "searchAuthor"){
       state.set({ searchAuthor: t.value });
     }
@@ -110,6 +125,8 @@ function setupEvents(){
   });
 
   document.addEventListener("click", async (e) => {
+    if (!(e.target instanceof Element)) return;
+
     const el = e.target.closest("[data-action]");
     if (!el) return;
 
@@ -118,39 +135,35 @@ function setupEvents(){
 
     try {
 
-      if (action === "openDetail"){
-        state.set({ view: "detail", selectedId: id });
-        return;
-      }
+      switch (action) {
 
-      if (action === "openEdit"){
-        state.set({ view: "edit", selectedId: id });
-        return;
-      }
+        case "openDetail":
+          state.set({ view: "detail", selectedId: id });
+          return;
 
-      if (action === "cancelEdit"){
-        state.set({ view: "detail", selectedId: id });
-        return;
-      }
+        case "openEdit":
+          state.set({ view: "edit", selectedId: id });
+          return;
 
-      if (action === "goBack"){
-        state.set({ view: "library", selectedId: null });
-        return;
-      }
+        case "cancelEdit":
+          state.set({ view: "detail", selectedId: id });
+          return;
 
-      if (action === "toggleFavorite"){
-        await toggleFavoriteAndSave(id);
-        return;
-      }
+        case "goBack":
+          state.set({ view: "library", selectedId: null });
+          return;
 
-      if (action === "saveEdit"){
-        await saveEditAndSave(id);
-        return;
-      }
+        case "toggleFavorite":
+          await toggleFavoriteAndSave(id);
+          return;
 
-      if (action === "openReader"){
-        await openReaderInDetail(id);
-        return;
+        case "saveEdit":
+          await saveEditAndSave(id);
+          return;
+
+        case "openReader":
+          await openReaderInDetail(id);
+          return;
       }
 
     } catch (err) {
@@ -161,10 +174,13 @@ function setupEvents(){
 }
 
 async function openReaderInDetail(id){
-  const book = state.books.find(b => b.id === String(id));
+  const current = state.get();
+  const book = current.books.find(b => b.id === String(id));
   if (!book) return;
 
-  if (state.view !== "detail") state.set({ view: "detail", selectedId: id });
+  if (current.view !== "detail"){
+    state.set({ view: "detail", selectedId: id });
+  }
 
   requestAnimationFrame(async () => {
     const mountEl = document.getElementById("reader");
@@ -174,24 +190,33 @@ async function openReaderInDetail(id){
 }
 
 async function toggleFavoriteAndSave(id){
-  const idx = state.books.findIndex(b => b.id === String(id));
+  const current = state.get();
+  const idx = current.books.findIndex(b => b.id === String(id));
   if (idx < 0) return;
 
-  const next = [...state.books];
-  next[idx] = normalizeBook({ ...next[idx], favorite: !next[idx].favorite });
+  const next = [...current.books];
+  next[idx] = normalizeBook({
+    ...next[idx],
+    favorite: !next[idx].favorite
+  });
 
   state.set({ books: next });
   saveBooksToCache(next);
 
-  await saveLibraryToDrive(next);
-  showToast("Mentve Drive-ba ✔");
+  try {
+    await saveLibraryToDrive(next);
+    showToast("Mentve Drive-ba ✔");
+  } catch {
+    showToast("Drive mentés sikertelen ❌");
+  }
 }
 
 async function saveEditAndSave(id){
-  const idx = state.books.findIndex(b => b.id === String(id));
+  const current = state.get();
+  const idx = current.books.findIndex(b => b.id === String(id));
   if (idx < 0) return;
 
-  const book = state.books[idx];
+  const book = current.books[idx];
 
   const updated = normalizeBook({
     ...book,
@@ -203,12 +228,16 @@ async function saveEditAndSave(id){
     description: document.getElementById("editDescription")?.value ?? book.description
   });
 
-  const next = [...state.books];
+  const next = [...current.books];
   next[idx] = updated;
 
   state.set({ books: next, view: "detail", selectedId: id });
   saveBooksToCache(next);
 
-  await saveLibraryToDrive(next);
-  showToast("Mentve Drive-ba ✔");
+  try {
+    await saveLibraryToDrive(next);
+    showToast("Mentve Drive-ba ✔");
+  } catch {
+    showToast("Drive mentés sikertelen ❌");
+  }
 }
