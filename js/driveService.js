@@ -1,6 +1,8 @@
 import { clamp, showToast } from "./utils.js";
 import { getBookProgress, setBookProgress } from "./storage.js";
 
+const DRIVE_API = "https://script.google.com/macros/s/AKfycbzeeftqTncmnrTlHI03dDE_7NltQp52oeXr8qDyAQcQfApOAYNkeDqu5ZR0LZm7nYshyg/exec";
+
 /**
  * Könyv megnyitása (PDF / EPUB)
  */
@@ -177,7 +179,27 @@ async function openEpub({ book, mountEl }) {
 =========================== */
 
 export async function saveLibraryToDrive(data) {
-  // Itt később lehet Google Apps Script / API hívás
-  console.log("Drive mentés (placeholder):", data);
+  const res = await fetch(DRIVE_API, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!res.ok) {
+    throw new Error("Drive mentés sikertelen");
+  }
+
   return true;
+}
+
+export async function loadLibraryFromDrive() {
+  const res = await fetch(DRIVE_API);
+
+  if (!res.ok) {
+    throw new Error("Drive betöltés sikertelen");
+  }
+
+  return await res.json();
 }
