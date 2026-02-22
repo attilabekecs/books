@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Books</title>
 
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css" />
 
   <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
@@ -17,6 +17,7 @@
 
 <div class="app">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div>
       <h1 class="logo">📚 Books</h1>
@@ -29,13 +30,14 @@
     </div>
 
     <div class="sidebar-bottom">
-      <button id="themeToggle">🌙 Téma</button>
+      <button id="themeToggle" class="sidebar-btn" type="button">🌙 Téma</button>
       <div class="sidebar-version">
         <span id="appVersion"></span>
       </div>
     </div>
   </aside>
 
+  <!-- MAIN -->
   <main class="main" id="mainContent"></main>
 
 </div>
