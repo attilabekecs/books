@@ -183,7 +183,7 @@ async function openReaderInDetail(id){
   }
 
   requestAnimationFrame(async () => {
-    const mountEl = document.getElementById("reader");
+    const mountEl = document.getElementById("readerView");
     if (!mountEl) return;
     await openReader({ book, mountEl });
   });
