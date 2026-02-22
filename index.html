@@ -21,24 +21,49 @@
   <aside class="sidebar">
     <div>
       <h1 class="logo">📚 Books</h1>
+
       <nav>
-        <a href="#" data-view="home" class="active">Kezdőlap</a>
-        <a href="#" data-view="library">Könyvtár</a>
-        <a href="#" data-view="favorites">Kedvencek</a>
-        <a href="#" data-view="stats">Statisztika</a>
+        <a href="#" data-view="home" class="nav-link active">Kezdőlap</a>
+        <a href="#" data-view="library" class="nav-link">Könyvtár</a>
+        <a href="#" data-view="favorites" class="nav-link">Kedvencek</a>
+        <a href="#" data-view="stats" class="nav-link">Statisztika</a>
       </nav>
     </div>
 
     <div class="sidebar-bottom">
-      <button id="themeToggle" class="sidebar-btn" type="button">🌙 Téma</button>
+      <button id="themeToggle" class="sidebar-btn" type="button">
+        🌙 Téma
+      </button>
+
       <div class="sidebar-version">
-        <span id="appVersion"></span>
+        <span id="appVersion">v1.0.0</span>
       </div>
     </div>
   </aside>
 
-  <!-- MAIN -->
-  <main class="main" id="mainContent"></main>
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- Dinamikus nézet -->
+    <div id="mainContent"></div>
+
+    <!-- READER VIEW -->
+    <div id="readerView" class="reader hidden">
+
+      <div class="reader-header">
+        <button id="readerBackBtn" type="button">⬅ Vissza</button>
+        <h2 id="readerTitle"></h2>
+      </div>
+
+      <!-- PDF container -->
+      <div id="pdfContainer" class="reader-container hidden"></div>
+
+      <!-- EPUB container -->
+      <div id="epubContainer" class="reader-container hidden"></div>
+
+    </div>
+
+  </main>
 
 </div>
 
