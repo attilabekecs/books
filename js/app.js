@@ -138,8 +138,14 @@ function setupEvents(){
       switch (action) {
 
         case "openDetail":
-          state.set({ view: "detail", selectedId: id });
-          return;
+  const currentView = state.get().view;
+
+  state.set({
+    view: "detail",
+    selectedId: id,
+    backView: currentView
+  });
+  return;
 
         case "openEdit":
           state.set({ view: "edit", selectedId: id });
@@ -150,8 +156,29 @@ function setupEvents(){
           return;
 
         case "goBack":
-          state.set({ view: "library", selectedId: null });
-          return;
+  const current = state.get();
+
+  if (current.view === "detail") {
+    state.set({
+      view: current.backView || "library",
+      selectedId: null
+    });
+    return;
+  }
+
+  if (current.view === "edit") {
+    state.set({
+      view: "detail",
+      selectedId: current.selectedId
+    });
+    return;
+  }
+
+  state.set({
+    view: "library",
+    selectedId: null
+  });
+  return;
 
         case "toggleFavorite":
           await toggleFavoriteAndSave(id);
