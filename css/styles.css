@@ -1,4 +1,35 @@
 /* =========================
+   THEME TOKENS
+========================= */
+:root{
+  --bg: #141414;
+  --text: #ffffff;
+  --muted: rgba(255,255,255,0.75);
+  --muted2: rgba(255,255,255,0.60);
+  --panel: rgba(255,255,255,0.03);
+  --sidebar: #111;
+  --input: #1c1c1c;
+  --border: #2a2a2a;
+  --accent: #e5a00d;
+  --accentHover: #f2b321;
+  --shadow: rgba(0,0,0,0.6);
+}
+
+body[data-theme="light"]{
+  --bg: #f6f6f6;
+  --text: #111;
+  --muted: rgba(0,0,0,0.72);
+  --muted2: rgba(0,0,0,0.55);
+  --panel: rgba(0,0,0,0.04);
+  --sidebar: #ffffff;
+  --input: #ffffff;
+  --border: #d9d9d9;
+  --accent: #d48f00;
+  --accentHover: #e7a51d;
+  --shadow: rgba(0,0,0,0.18);
+}
+
+/* =========================
    GLOBAL
 ========================= */
 html, body {
@@ -6,35 +37,35 @@ html, body {
   margin: 0;
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #141414;
-  color: #fff;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .app {
   display: flex;
-  height: 100vh; /* teljes képernyő */
+  height: 100vh;
 }
 
 /* =========================
    SIDEBAR
 ========================= */
-
 .sidebar {
   width: 220px;
-  background: #111;
+  background: var(--sidebar);
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* felső menü + alsó verzió */
+  justify-content: space-between;
   height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
   box-sizing: border-box;
+  border-right: 1px solid var(--border);
 }
 
 .logo {
-  color: #e5a00d;
+  color: var(--accent);
   margin-bottom: 30px;
 }
 
@@ -49,39 +80,54 @@ html, body {
 
 .sidebar nav a.active,
 .sidebar nav a:hover {
-  color: #fff;
+  color: var(--text);
 }
+
 .sidebar-version {
   font-size: 13px;
   color: #777;
-  margin-top: 20px;
+  margin-top: 14px;
 }
+
+.sidebar-bottom{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.sidebar-btn{
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.sidebar-btn:hover{ filter: brightness(1.05); }
 
 /* =========================
    MAIN
 ========================= */
-
 .main {
-  margin-left: 220px; /* sidebar szélesség */
+  margin-left: 220px;
   flex: 1;
   padding: 30px;
   height: 100vh;
-  overflow-y: auto; /* csak ez scrollozzon */
+  overflow-y: auto;
 }
-
 
 /* =========================
    HOME HERO (Modern)
 ========================= */
-
 .home-hero {
   display: flex;
   gap: 30px;
   padding: 30px;
   margin-bottom: 40px;
-  background: rgba(255,255,255,0.03);
+  background: var(--panel);
   border-radius: 16px;
   backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
 }
 
 .home-hero-poster {
@@ -129,17 +175,18 @@ html, body {
 }
 
 .home-hero-actions button {
-  background: #e5a00d;
+  background: var(--accent);
   border: none;
   padding: 12px 18px;
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
   transition: 0.2s ease;
+  color: #111;
 }
 
 .home-hero-actions button:hover {
-  background: #f2b321;
+  background: var(--accentHover);
 }
 
 .home-row {
@@ -151,7 +198,6 @@ html, body {
 /* =========================
    FILTERS
 ========================= */
-
 .filters {
   margin-bottom: 25px;
 }
@@ -161,16 +207,14 @@ html, body {
   padding: 8px 12px;
   margin-right: 10px;
   border-radius: 8px;
-  border: 1px solid #2a2a2a;
-  background: #1c1c1c;
-  color: white;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--text);
 }
-
 
 /* =========================
    GRID
 ========================= */
-
 .grid {
   display: flex;
   flex-wrap: wrap;
@@ -181,11 +225,12 @@ html, body {
   width: 220px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
 }
 
 .book-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
 .book-card img {
@@ -201,11 +246,36 @@ html, body {
   opacity: 0.9;
 }
 
+/* favorite mini badge */
+.fav-badge{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.18);
+  color:#fff;
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+/* progress bar under title (optional) */
+.card-progress{
+  height: 6px;
+  background: rgba(255,255,255,0.10);
+  border-radius: 99px;
+  overflow:hidden;
+  margin-top: 8px;
+}
+.card-progress > div{
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+}
 
 /* =========================
    DETAIL PAGE
 ========================= */
-
 .book-detail {
   display: flex;
   gap: 50px;
@@ -219,7 +289,7 @@ html, body {
 .detail-poster {
   width: 100%;
   border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 40px var(--shadow);
 }
 
 .detail-right {
@@ -233,32 +303,62 @@ html, body {
 
 .actions {
   margin-top: 20px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
 }
 
 .actions button {
-  background: #e5a00d;
+  background: var(--accent);
   border: none;
   padding: 10px 16px;
-  margin-right: 10px;
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
   transition: 0.2s ease;
+  color:#111;
 }
 
 .actions button:hover {
-  background: #f2b321;
+  background: var(--accentHover);
 }
+
+.actions .secondary{
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.actions .secondary:hover{ filter: brightness(1.06); }
 
 #reader {
-  margin-top: 40px;
+  margin-top: 24px;
 }
 
+/* reader toolbar */
+.reader-toolbar{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin: 12px 0 10px 0;
+  flex-wrap:wrap;
+}
+.reader-toolbar button{
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor:pointer;
+}
+.reader-toolbar button:hover{ filter: brightness(1.06); }
+.reader-meta{
+  opacity: 0.8;
+  font-size: 13px;
+}
 
 /* =========================
    EDIT MODE
 ========================= */
-
 .edit-mode {
   max-width: 700px;
   margin: 0 auto;
@@ -280,9 +380,9 @@ html, body {
 .edit-form textarea {
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #2a2a2a;
-  background: #1c1c1c;
-  color: white;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--text);
 }
 
 .edit-buttons {
@@ -292,32 +392,47 @@ html, body {
 }
 
 .edit-buttons button {
-  padding: 8px 14px;
+  padding: 10px 14px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 600;
 }
 
+.edit-buttons .primary{ background: var(--accent); color:#111; }
+.edit-buttons .primary:hover{ background: var(--accentHover); }
+.edit-buttons .secondary{ background: var(--panel); border:1px solid var(--border); color: var(--text); }
+.edit-buttons .secondary:hover{ filter: brightness(1.06); }
+
+/* =========================
+   LOADING + TOAST
+========================= */
+.loading{
+  padding: 18px 20px;
+  background: var(--panel);
+  border:1px solid var(--border);
+  border-radius: 14px;
+}
+
+.toast{
+  position: fixed;
+  left: 240px; /* sidebar után */
+  bottom: 24px;
+  background: rgba(0,0,0,0.72);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff;
+  padding: 12px 14px;
+  border-radius: 14px;
+  max-width: 520px;
+  z-index: 9999;
+}
 
 /* =========================
    RESPONSIVE
 ========================= */
-
 @media (max-width: 900px) {
-
-  .home-hero {
-    flex-direction: column;
-  }
-
-  .home-hero-poster {
-    width: 180px;
-  }
-
-  .book-detail {
-    flex-direction: column;
-  }
-
-  .detail-left {
-    width: 220px;
-  }
+  .home-hero { flex-direction: column; }
+  .home-hero-poster { width: 180px; }
+  .book-detail { flex-direction: column; }
+  .detail-left { width: 220px; }
 }
