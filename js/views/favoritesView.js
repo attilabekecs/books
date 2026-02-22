@@ -1,14 +1,18 @@
-import { bookCard } from "../components/bookCard.js";
-import { getFavorites } from "../storage.js";
+import { renderBookGrid } from "../components/bookGrid.js";
 
-export function renderFavorites(state) {
-  const favIds = getFavorites();
-  const favBooks = state.books.filter(b => favIds.includes(b.id));
+export function renderFavorites(state){
+
+  const favorites = state.books.filter(b => b.favorite);
 
   return `
     <h2>Kedvencek</h2>
-    <section class="book-grid">
-      ${favBooks.map(bookCard).join("")}
+
+    <section class="grid">
+      ${
+        favorites.length
+          ? renderBookGrid(favorites)
+          : `<div class="loading">Még nincs kedvenc könyved.</div>`
+      }
     </section>
   `;
 }
