@@ -30,16 +30,22 @@ export function renderEdit(state){
         <input type="text" id="editGenre" value="${safeText(book.genre)}">
 
         <label>Leírás</label>
-        <textarea id="editDescription" rows="6">
-${safeText(book.description)}
-        </textarea>
+        <textarea id="editDescription" rows="6">${safeText(book.description)}</textarea>
 
         <div class="edit-buttons">
-          <button type="button" class="primary" data-action="saveEdit" data-id="${safeText(book.id)}">
+          <button 
+            type="button" 
+            class="primary" 
+            data-action="saveEdit" 
+            data-id="${safeText(book.id)}">
             💾 Mentés
           </button>
 
-          <button type="button" class="secondary" data-action="cancelEdit" data-id="${safeText(book.id)}">
+          <button 
+            type="button" 
+            class="secondary" 
+            data-action="cancelEdit" 
+            data-id="${safeText(book.id)}">
             ❌ Mégse
           </button>
         </div>
