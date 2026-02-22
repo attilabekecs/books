@@ -210,9 +210,14 @@ async function openReaderInDetail(id){
   }
 
   requestAnimationFrame(async () => {
-    const mountEl = document.getElementById("readerView");
+    // ✅ a detail nézetben lévő mount pont
+    const mountEl = document.getElementById("reader");
     if (!mountEl) return;
+
     await openReader({ book, mountEl });
+
+    // opcionális: görgessen oda az olvasóhoz
+    mountEl.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 }
 
