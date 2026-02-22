@@ -1,30 +1,31 @@
 const state = {
+  // data
   books: [],
-  view: "home",
-  search: "",
+
+  // ui
+  view: "home",          // home | library | favorites | stats | detail | edit
+  selectedId: null,      // detail/edit könyv id
+  loading: true,
+  error: null,
+
+  // filters
+  searchTitle: "",
+  searchAuthor: "",
+  sortBy: "title",       // title | author
+
   listeners: [],
 
-  setBooks(data) {
-    this.books = data;
-    this.notify();
-  },
-
-  setView(view) {
-    this.view = view;
-    this.notify();
-  },
-
-  setSearch(value) {
-    this.search = value;
-    this.notify();
-  },
-
-  subscribe(fn) {
+  subscribe(fn){
     this.listeners.push(fn);
   },
 
-  notify() {
-    this.listeners.forEach(fn => fn(this));
+  notify(){
+    for (const fn of this.listeners) fn(this);
+  },
+
+  set(partial){
+    Object.assign(this, partial);
+    this.notify();
   }
 };
 
