@@ -1,7 +1,7 @@
 import state from "./state.js";
 import { VERSION_URL } from "./config.js";
-import { fetchBooks, loadBooksFromCache, saveBooksToCache } from "./api.js";
-import { saveLibraryToDrive } from "./driveService.js";
+import { fetchBooks } from "./api.js";
+import { saveLibraryToDrive, loadLibraryFromDrive } from "./driveService.js";
 import { renderApp } from "./router.js";
 import { showToast, normalizeBook } from "./utils.js";
 import { getTheme, setTheme } from "./storage.js";
@@ -18,40 +18,66 @@ init().catch(err => {
   state.set({ loading: false, error: String(err?.message || err) });
 });
 
-async function init(){
+/* =====================================================
+   INIT (Drive-first architektúra)
+===================================================== */
+
+async function init() {
   initTheme();
   loadVersion();
   setupSidebarNavigation();
 
-  const cached = loadBooksFromCache();
+  state.set({ loading: true });
 
-  if (cached?.length){
-    state.set({ books: cached, loading: false, error: null });
-  } else {
-    state.set({ loading: true });
+  // 🔥 1️⃣ Drive betöltés
+  try {
+    const driveData = await loadLibraryFromDrive();
+
+    if (driveData?.length) {
+      state.set({
+        books: driveData,
+        loading: false,
+        error: null
+      });
+
+      console.log("Drive adat betöltve ✔");
+      setupEvents();
+      setupResizeListener();
+      return; // KRITIKUS: itt megállunk
+    }
+
+  } catch (err) {
+    console.warn("Drive load failed, fallback to JSON", err);
   }
 
+  // 🔄 2️⃣ JSON fallback
   try {
     const fresh = await fetchBooks();
-    saveBooksToCache(fresh);
-    state.set({ books: fresh, loading: false, error: null });
+
+    state.set({
+      books: fresh,
+      loading: false,
+      error: null
+    });
+
+    console.log("JSON fallback betöltve");
+
   } catch (e) {
-    if (!cached?.length){
-      state.set({ loading: false, error: "Nem sikerült betölteni a könyveket." });
-    } else {
-      showToast("Nem sikerült frissíteni, cache marad.");
-    }
+    state.set({
+      loading: false,
+      error: "Nem sikerült betölteni a könyveket."
+    });
   }
 
   setupEvents();
-
-  window.addEventListener("resize", () => {
-    const current = state.get();
-    if (current.view === "home") state.notify();
-  });
+  setupResizeListener();
 }
 
-function initTheme(){
+/* =====================================================
+   THEME
+===================================================== */
+
+function initTheme() {
   const saved = getTheme() || "dark";
   document.body.dataset.theme = saved;
 
@@ -66,7 +92,11 @@ function initTheme(){
   });
 }
 
-async function loadVersion(){
+/* =====================================================
+   VERSION
+===================================================== */
+
+async function loadVersion() {
   const el = document.getElementById("appVersion");
   if (!el) return;
 
@@ -80,7 +110,11 @@ async function loadVersion(){
   }
 }
 
-function setupSidebarNavigation(){
+/* =====================================================
+   SIDEBAR NAV
+===================================================== */
+
+function setupSidebarNavigation() {
   document.querySelectorAll(".sidebar a[data-view]").forEach(link => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
@@ -100,17 +134,21 @@ function setupSidebarNavigation(){
   });
 }
 
-function setupEvents(){
+/* =====================================================
+   EVENTS
+===================================================== */
+
+function setupEvents() {
 
   document.addEventListener("input", (e) => {
     const t = e.target;
     if (!(t instanceof HTMLElement)) return;
 
-    if (t.id === "searchTitle"){
+    if (t.id === "searchTitle") {
       state.set({ searchTitle: t.value });
     }
 
-    if (t.id === "searchAuthor"){
+    if (t.id === "searchAuthor") {
       state.set({ searchAuthor: t.value });
     }
   });
@@ -119,7 +157,7 @@ function setupEvents(){
     const t = e.target;
     if (!(t instanceof HTMLElement)) return;
 
-    if (t.id === "sortSelect"){
+    if (t.id === "sortSelect") {
       state.set({ sortBy: t.value });
     }
   });
@@ -137,15 +175,16 @@ function setupEvents(){
 
       switch (action) {
 
-        case "openDetail":
-  const currentView = state.get().view;
+        case "openDetail": {
+          const currentView = state.get().view;
 
-  state.set({
-    view: "detail",
-    selectedId: id,
-    backView: currentView
-  });
-  return;
+          state.set({
+            view: "detail",
+            selectedId: id,
+            backView: currentView
+          });
+          return;
+        }
 
         case "openEdit":
           state.set({ view: "edit", selectedId: id });
@@ -155,30 +194,31 @@ function setupEvents(){
           state.set({ view: "detail", selectedId: id });
           return;
 
-        case "goBack":
-  const current = state.get();
+        case "goBack": {
+          const current = state.get();
 
-  if (current.view === "detail") {
-    state.set({
-      view: current.backView || "library",
-      selectedId: null
-    });
-    return;
-  }
+          if (current.view === "detail") {
+            state.set({
+              view: current.backView || "library",
+              selectedId: null
+            });
+            return;
+          }
 
-  if (current.view === "edit") {
-    state.set({
-      view: "detail",
-      selectedId: current.selectedId
-    });
-    return;
-  }
+          if (current.view === "edit") {
+            state.set({
+              view: "detail",
+              selectedId: current.selectedId
+            });
+            return;
+          }
 
-  state.set({
-    view: "library",
-    selectedId: null
-  });
-  return;
+          state.set({
+            view: "library",
+            selectedId: null
+          });
+          return;
+        }
 
         case "toggleFavorite":
           await toggleFavoriteAndSave(id);
@@ -200,28 +240,37 @@ function setupEvents(){
   });
 }
 
-async function openReaderInDetail(id){
+/* =====================================================
+   READER
+===================================================== */
+
+async function openReaderInDetail(id) {
   const current = state.get();
   const book = current.books.find(b => b.id === String(id));
   if (!book) return;
 
-  if (current.view !== "detail"){
+  if (current.view !== "detail") {
     state.set({ view: "detail", selectedId: id });
   }
 
   requestAnimationFrame(async () => {
-    // ✅ a detail nézetben lévő mount pont
     const mountEl = document.getElementById("reader");
     if (!mountEl) return;
 
     await openReader({ book, mountEl });
 
-    // opcionális: görgessen oda az olvasóhoz
-    mountEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    mountEl.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   });
 }
 
-async function toggleFavoriteAndSave(id){
+/* =====================================================
+   SAVE OPERATIONS
+===================================================== */
+
+async function toggleFavoriteAndSave(id) {
   const current = state.get();
   const idx = current.books.findIndex(b => b.id === String(id));
   if (idx < 0) return;
@@ -233,7 +282,6 @@ async function toggleFavoriteAndSave(id){
   });
 
   state.set({ books: next });
-  saveBooksToCache(next);
 
   try {
     await saveLibraryToDrive(next);
@@ -243,7 +291,7 @@ async function toggleFavoriteAndSave(id){
   }
 }
 
-async function saveEditAndSave(id){
+async function saveEditAndSave(id) {
   const current = state.get();
   const idx = current.books.findIndex(b => b.id === String(id));
   if (idx < 0) return;
@@ -263,8 +311,11 @@ async function saveEditAndSave(id){
   const next = [...current.books];
   next[idx] = updated;
 
-  state.set({ books: next, view: "detail", selectedId: id });
-  saveBooksToCache(next);
+  state.set({
+    books: next,
+    view: "detail",
+    selectedId: id
+  });
 
   try {
     await saveLibraryToDrive(next);
@@ -272,4 +323,15 @@ async function saveEditAndSave(id){
   } catch {
     showToast("Drive mentés sikertelen ❌");
   }
+}
+
+/* =====================================================
+   RESIZE LISTENER
+===================================================== */
+
+function setupResizeListener() {
+  window.addEventListener("resize", () => {
+    const current = state.get();
+    if (current.view === "home") state.notify();
+  });
 }
