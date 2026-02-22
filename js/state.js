@@ -3,16 +3,16 @@ const state = {
   books: [],
 
   // ui
-view: "home",          // home | library | favorites | stats | detail | edit
-selectedId: null,      // detail/edit könyv id
-backView: "library",   // ⬅️ honnan jöttünk detail-be
-loading: true,
-error: null,
+  view: "home",          // home | library | favorites | stats | detail | edit
+  selectedId: null,      
+  backView: "library",   
+  loading: true,
+  error: null,
 
   // filters
   searchTitle: "",
   searchAuthor: "",
-  sortBy: "title",       // title | author
+  sortBy: "title",
 
   listeners: [],
 
@@ -27,6 +27,11 @@ error: null,
   set(partial){
     Object.assign(this, partial);
     this.notify();
+  },
+
+  // 🔥 EZ HIÁNYZOTT
+  get(){
+    return this;
   }
 };
 
