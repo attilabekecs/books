@@ -436,3 +436,11 @@ html, body {
   .book-detail { flex-direction: column; }
   .detail-left { width: 220px; }
 }
+
+/* =========================
+   UTILITY
+========================= */
+
+.hidden {
+  display: none !important;
+}
