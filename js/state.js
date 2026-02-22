@@ -3,10 +3,11 @@ const state = {
   books: [],
 
   // ui
-  view: "home",          // home | library | favorites | stats | detail | edit
-  selectedId: null,      // detail/edit könyv id
-  loading: true,
-  error: null,
+view: "home",          // home | library | favorites | stats | detail | edit
+selectedId: null,      // detail/edit könyv id
+backView: "library",   // ⬅️ honnan jöttünk detail-be
+loading: true,
+error: null,
 
   // filters
   searchTitle: "",
