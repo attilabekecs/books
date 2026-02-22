@@ -17,31 +17,29 @@
 
 <div class="app">
 
-  <!-- SIDEBAR -->
- <aside class="sidebar">
-  <div>
-    <h1 class="logo">📚 Books</h1>
-    <nav>
-      <a href="#" data-view="home" class="active">Kezdőlap</a>
-      <a href="#" data-view="library">Könyvtár</a>
-      <a href="#" data-view="favorites">Kedvencek</a>
-    </nav>
-  </div>
+  <aside class="sidebar">
+    <div>
+      <h1 class="logo">📚 Books</h1>
+      <nav>
+        <a href="#" data-view="home" class="active">Kezdőlap</a>
+        <a href="#" data-view="library">Könyvtár</a>
+        <a href="#" data-view="favorites">Kedvencek</a>
+        <a href="#" data-view="stats">Statisztika</a>
+      </nav>
+    </div>
 
-  <div class="sidebar-version">
-    <span id="appVersion"></span>
-  </div>
-</aside>
+    <div class="sidebar-bottom">
+      <button id="themeToggle">🌙 Téma</button>
+      <div class="sidebar-version">
+        <span id="appVersion"></span>
+      </div>
+    </div>
+  </aside>
 
-  <!-- MAIN -->
-  <main class="main" id="mainContent">
-    <!-- Minden nézet JS-ből generálódik -->
-  </main>
+  <main class="main" id="mainContent"></main>
 
 </div>
 
-<!-- Cache-busting paraméterrel -->
-<script src="js/app.js?v=1"></script>
-
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
